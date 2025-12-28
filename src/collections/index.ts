@@ -1,5 +1,7 @@
 export * from './pages'
 export * from './Media'
+export * from './Header'
+export * from './Footer'
 export * from './Users'
 export * from './Articles'
 export * from './Author'

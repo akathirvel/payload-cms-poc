@@ -72,6 +72,8 @@ export interface Config {
     articles: Article;
     author: Author;
     pages: Page;
+    header: Header;
+    footer: Footer;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +86,8 @@ export interface Config {
     articles: ArticlesSelect<false> | ArticlesSelect<true>;
     author: AuthorSelect<false> | AuthorSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
+    header: HeaderSelect<false> | HeaderSelect<true>;
+    footer: FooterSelect<false> | FooterSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -229,83 +233,120 @@ export interface Page {
   id: number;
   title: string;
   slug: string;
-  header?:
-    | {
-        title: string;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        media: number | Media;
-        textPosition?: ('left' | 'right') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'contentWithMedia';
-      }[]
-    | null;
+  header?: (number | null) | Header;
   body?:
-    | {
-        title: string;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
+    | (
+        | {
+            title: string;
+            content: {
+              root: {
+                type: string;
+                children: {
+                  type: any;
+                  version: number;
+                  [k: string]: unknown;
+                }[];
+                direction: ('ltr' | 'rtl') | null;
+                format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+                indent: number;
+                version: number;
+              };
               [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        media: number | Media;
-        textPosition?: ('left' | 'right') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'contentWithMedia';
-      }[]
+            };
+            media: number | Media;
+            textPosition?: ('left' | 'right') | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'contentWithMedia';
+          }
+        | {
+            heading: string;
+            introduction?: string | null;
+            backgroundImage: number | Media;
+            links?:
+              | {
+                  label: string;
+                  url: string;
+                  type?: ('primary' | 'secondary') | null;
+                  id?: string | null;
+                }[]
+              | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'heroBanner';
+          }
+        | {
+            title: string;
+            image: number | Media;
+            author: number | Author;
+            publishedDate: string;
+            readTime?: string | null;
+            url?: string | null;
+            id?: string | null;
+            blockName?: string | null;
+            blockType: 'card';
+          }
+      )[]
     | null;
-  footer?:
-    | {
-        title: string;
-        content: {
-          root: {
-            type: string;
-            children: {
-              type: any;
-              version: number;
-              [k: string]: unknown;
-            }[];
-            direction: ('ltr' | 'rtl') | null;
-            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-            indent: number;
-            version: number;
-          };
-          [k: string]: unknown;
-        };
-        media: number | Media;
-        textPosition?: ('left' | 'right') | null;
-        id?: string | null;
-        blockName?: string | null;
-        blockType: 'contentWithMedia';
-      }[]
-    | null;
+  footer?: (number | null) | Footer;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header".
+ */
+export interface Header {
+  id: number;
+  title: string;
+  header: {
+    logo: number | Media;
+    navItems?:
+      | {
+          label: string;
+          link: string;
+          id?: string | null;
+        }[]
+      | null;
+    id?: string | null;
+    blockName?: string | null;
+    blockType: 'header';
+  }[];
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer".
+ */
+export interface Footer {
+  id: number;
+  title: string;
+  footer: {
+    logo?: (number | null) | Media;
+    columns?:
+      | {
+          heading?: string | null;
+          links?:
+            | {
+                label?: string | null;
+                url?: string | null;
+                id?: string | null;
+              }[]
+            | null;
+          id?: string | null;
+        }[]
+      | null;
+    copyright?: string | null;
+    id?: string | null;
+    blockName?: string | null;
+    blockType: 'footer';
+  }[];
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -350,6 +391,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'pages';
         value: number | Page;
+      } | null)
+    | ({
+        relationTo: 'header';
+        value: number | Header;
+      } | null)
+    | ({
+        relationTo: 'footer';
+        value: number | Footer;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -466,20 +515,7 @@ export interface AuthorSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   slug?: T;
-  header?:
-    | T
-    | {
-        contentWithMedia?:
-          | T
-          | {
-              title?: T;
-              content?: T;
-              media?: T;
-              textPosition?: T;
-              id?: T;
-              blockName?: T;
-            };
-      };
+  header?: T;
   body?:
     | T
     | {
@@ -493,23 +529,103 @@ export interface PagesSelect<T extends boolean = true> {
               id?: T;
               blockName?: T;
             };
-      };
-  footer?:
-    | T
-    | {
-        contentWithMedia?:
+        heroBanner?:
+          | T
+          | {
+              heading?: T;
+              introduction?: T;
+              backgroundImage?: T;
+              links?:
+                | T
+                | {
+                    label?: T;
+                    url?: T;
+                    type?: T;
+                    id?: T;
+                  };
+              id?: T;
+              blockName?: T;
+            };
+        card?:
           | T
           | {
               title?: T;
-              content?: T;
-              media?: T;
-              textPosition?: T;
+              image?: T;
+              author?: T;
+              publishedDate?: T;
+              readTime?: T;
+              url?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  footer?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "header_select".
+ */
+export interface HeaderSelect<T extends boolean = true> {
+  title?: T;
+  header?:
+    | T
+    | {
+        header?:
+          | T
+          | {
+              logo?: T;
+              navItems?:
+                | T
+                | {
+                    label?: T;
+                    link?: T;
+                    id?: T;
+                  };
               id?: T;
               blockName?: T;
             };
       };
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "footer_select".
+ */
+export interface FooterSelect<T extends boolean = true> {
+  title?: T;
+  footer?:
+    | T
+    | {
+        footer?:
+          | T
+          | {
+              logo?: T;
+              columns?:
+                | T
+                | {
+                    heading?: T;
+                    links?:
+                      | T
+                      | {
+                          label?: T;
+                          url?: T;
+                          id?: T;
+                        };
+                    id?: T;
+                  };
+              copyright?: T;
+              id?: T;
+              blockName?: T;
+            };
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

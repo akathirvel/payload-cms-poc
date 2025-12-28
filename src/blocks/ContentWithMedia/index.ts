@@ -1,1 +1,1 @@
-export * from './ContentWithMedia'
+export * from './content-with-media'

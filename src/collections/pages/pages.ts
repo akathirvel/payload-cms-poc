@@ -3,6 +3,12 @@ import { CollectionConfig } from 'payload'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
+  admin: {
+    useAsTitle: 'title',
+  },
+  versions: {
+    drafts: true,
+  },
   fields: [
     {
       name: 'title',
@@ -16,8 +22,8 @@ export const Pages: CollectionConfig = {
     },
     {
       name: 'header',
-      type: 'blocks',
-      blocks: [...sharedBlocks],
+      type: 'relationship',
+      relationTo: 'header',
       required: false,
     },
     {
@@ -29,8 +35,8 @@ export const Pages: CollectionConfig = {
     },
     {
       name: 'footer',
-      type: 'blocks',
-      blocks: [...sharedBlocks],
+      type: 'relationship',
+      relationTo: 'footer',
       required: false,
     },
   ],
